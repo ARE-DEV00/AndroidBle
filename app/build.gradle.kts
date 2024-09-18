@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "kr.co.are.androidble"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -60,6 +60,17 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+
+    //Navigation
+    implementation(libs.navigation.compose)
+
+    //Navigation
+    implementation(libs.navigation.compose)
+
+    //Logger
+    implementation(libs.timber)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

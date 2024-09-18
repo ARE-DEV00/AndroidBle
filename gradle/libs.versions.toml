@@ -9,6 +9,15 @@ lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
 composeBom = "2024.09.01"
 
+navigationCompose = "2.8.0"
+navigationRuntimeKtx = "2.8.0"
+
+timber = "5.0.1"
+
+room-runtime = "2.6.1"
+room-paging = "2.6.1"
+room-compiler = "2.6.1"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +33,21 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+#navigation-compose
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+
+
+#Logger
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+#Room
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room-runtime" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room-paging" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room-compiler" }
+
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
