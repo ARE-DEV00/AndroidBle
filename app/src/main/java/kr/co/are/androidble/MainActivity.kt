@@ -1,47 +1,47 @@
 package kr.co.are.androidble
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import kr.co.are.androidble.ui.theme.AndroidBleTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import kr.co.are.androidble.ui.component.AppNavigation
 
 class MainActivity : ComponentActivity() {
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            AndroidBleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            LaunchedEffect(Unit) {
+                requestBLEPermissions()
             }
+
+            AppNavigation()
+
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    // BLE 권한 요청
+    private fun requestBLEPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidBleTheme {
-        Greeting("Android")
+        if (!permissions.all {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    it
+                ) == PackageManager.PERMISSION_GRANTED
+            }) {
+            ActivityCompat.requestPermissions(this, permissions, 1)
+        }
     }
 }
