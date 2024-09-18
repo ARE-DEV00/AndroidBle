@@ -4,12 +4,15 @@ import android.app.Application
 import android.bluetooth.le.ScanResult
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kr.co.are.androidble.ui.module.BluetoothModule
 import kr.co.are.androidble.ui.connection.model.ConnectionUiState
+import javax.inject.Inject
 
-class ConnectionViewModel(private val application: Application) :
+@HiltViewModel
+class ConnectionViewModel @Inject constructor(private val application: Application) :
     AndroidViewModel(application) {
     private val _homeUiState = MutableStateFlow<ConnectionUiState>(ConnectionUiState.Ready)
     val homeUiState = _homeUiState.asStateFlow()

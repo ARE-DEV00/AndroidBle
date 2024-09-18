@@ -1,8 +1,11 @@
 package kr.co.are.androidble.ui.history
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HistoryViewModel constructor() : ViewModel() {
+@HiltViewModel
+class HistoryViewModel @Inject constructor() : ViewModel() {
 
 
 

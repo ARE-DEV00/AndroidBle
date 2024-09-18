@@ -1,9 +1,10 @@
 package kr.co.are.androidble
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
-
+@HiltAndroidApp
 class AndroidBleApplication : Application() {
 
     override fun onCreate() {
