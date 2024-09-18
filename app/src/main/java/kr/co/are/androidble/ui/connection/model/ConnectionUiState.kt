@@ -17,6 +17,9 @@ sealed interface ConnectionUiState {
     data object StopSearching : ConnectionUiState
 
     @Immutable
+    data class ErrorSearching(val code:Int) : ConnectionUiState
+
+    @Immutable
     data object ConnectionBluetooth : ConnectionUiState
 
     @Immutable

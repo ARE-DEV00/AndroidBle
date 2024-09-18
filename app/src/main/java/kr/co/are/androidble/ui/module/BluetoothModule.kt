@@ -1,4 +1,4 @@
-package kr.co.are.androidble.bluetooth
+package kr.co.are.androidble.ui.module
 
 import android.annotation.SuppressLint
 import android.app.Activity.BLUETOOTH_SERVICE
@@ -18,7 +18,7 @@ class BluetoothModule private constructor(private val application: Application) 
     private lateinit var bleScanner: BluetoothLeScanner
     private var bluetoothGatt: BluetoothGatt? = null
 
-    private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
+    //private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
     private val CHARACTERISTIC_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
     private var userServiceUUID: String? = null
     private var listener: BluetoothModuleListener? = null
@@ -54,12 +54,20 @@ class BluetoothModule private constructor(private val application: Application) 
                 Timber.e("UUID: $it")
             }
 
-            if (userServiceUUID != null) {
-                userServiceUUID = serviceUuids?.get(0)?.uuid.toString()
-                if (serviceUuids?.contains(ParcelUuid(UUID.fromString(userServiceUUID))) == true) {
+            if (userServiceUUID?.isNotEmpty() == true) {
+                runCatching {
+                    if (serviceUuids?.contains(ParcelUuid(UUID.fromString(userServiceUUID))) == true) {
+                        stopScan()
+                        connectToDevice(device)
+                    }
+                }.onFailure {
+                    Timber.e(it)
                     stopScan()
-                    connectToDevice(device)
+                    listener?.onScanFailed(99999)
+                }.onSuccess {
+                    Timber.e("Success")
                 }
+
             }
         }
 
@@ -102,15 +110,15 @@ class BluetoothModule private constructor(private val application: Application) 
             override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     Log.d("BLE", "MTU changed to $mtu")
-                    listener?.onConnectionGattServer()
                     gatt.discoverServices()
                 }
             }
 
             @SuppressLint("MissingPermission")
-            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            override fun onServicesDiscovered(gatt: BluetoothGatt,status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    val service = gatt.getService(SERVICE_UUID)
+                    listener?.onConnectionGattServer()
+                    val service = gatt.getService(UUID.fromString(userServiceUUID))
                     service?.let {
                         val characteristic = it.getCharacteristic(CHARACTERISTIC_UUID)
                         characteristic?.let { enableNotification(gatt, it) }

@@ -1,14 +1,14 @@
-package kr.co.are.androidble.ui.data
+package kr.co.are.androidble.ui.history
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import kr.co.are.androidble.bluetooth.BluetoothModule
+import kr.co.are.androidble.ui.module.BluetoothModule
 
 @Composable
-fun DataScreen(
+fun HistoryScreen(
     modifier: Modifier = Modifier
 ) {
 
