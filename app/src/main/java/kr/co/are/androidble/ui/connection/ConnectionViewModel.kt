@@ -2,57 +2,65 @@ package kr.co.are.androidble.ui.connection
 
 import android.app.Application
 import android.bluetooth.le.ScanResult
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kr.co.are.androidble.bluetooth.BluetoothModule
+import kr.co.are.androidble.ui.module.BluetoothModule
 import kr.co.are.androidble.ui.connection.model.ConnectionUiState
 
-class ConnectionViewModel (private val application: Application) :
+class ConnectionViewModel(private val application: Application) :
     AndroidViewModel(application) {
     private val _homeUiState = MutableStateFlow<ConnectionUiState>(ConnectionUiState.Ready)
     val homeUiState = _homeUiState.asStateFlow()
+
+    var isQRCodeScanned = mutableStateOf(false)
+    var qrCode = mutableStateOf<String?>(null)
+    var uuidInput = mutableStateOf("")
 
     init {
 
     }
 
-    fun initBluetooth(userServiceUUID: String = "4fafc201-1fb5-459e-8fcc-c5c9c331914b") {
-        BluetoothModule.getInstance(application).setServiceUUID(userServiceUUID)
-        BluetoothModule.getInstance(application).setListener(object : BluetoothModule.BluetoothModuleListener {
-            override fun onScanStarted() {
-                _homeUiState.value = ConnectionUiState.StartSearching
-            }
+    fun initBluetooth() {
+        BluetoothModule.getInstance(application)
+            .setListener(object : BluetoothModule.BluetoothModuleListener {
+                override fun onScanStarted() {
+                    _homeUiState.value = ConnectionUiState.StartSearching
+                }
 
-            override fun onScanResult(scanResult: ScanResult) {
+                override fun onScanResult(scanResult: ScanResult) {
 
-            }
+                }
 
-            override fun onScanFailed(errorCode: Int) {
+                override fun onScanFailed(errorCode: Int) {
+                    _homeUiState.value = ConnectionUiState.ErrorSearching(errorCode)
+                }
 
-            }
+                override fun onScanStopped() {
+                    _homeUiState.value = ConnectionUiState.StopSearching
+                }
 
-            override fun onScanStopped() {
-                _homeUiState.value = ConnectionUiState.StopSearching
-            }
+                override fun onConnectionGattServer() {
+                    _homeUiState.value = ConnectionUiState.ConnectionBluetooth
+                }
 
-            override fun onConnectionGattServer() {
-                _homeUiState.value = ConnectionUiState.ConnectionBluetooth
-            }
+                override fun onDisconnectionGattServer() {
+                    _homeUiState.value = ConnectionUiState.DisconnectionBluetooth
+                }
 
-            override fun onDisconnectionGattServer() {
-                _homeUiState.value = ConnectionUiState.DisconnectionBluetooth
-            }
+                override fun onCharacteristicChanged(data: String) {
+                }
 
-            override fun onCharacteristicChanged(data: String) {
-            }
-
-        })
+            })
     }
 
     // BLE 스캔 시작
-    fun startScan() {
-        BluetoothModule.getInstance(application).startScan()
+    fun startScan(serviceUuid: String) {
+        if (serviceUuid.isNotEmpty()) {
+            BluetoothModule.getInstance(application).setServiceUUID(serviceUuid)
+            BluetoothModule.getInstance(application).startScan()
+        }
     }
 
     // BLE 스캔 중지

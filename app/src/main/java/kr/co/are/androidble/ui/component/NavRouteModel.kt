@@ -8,8 +8,8 @@ sealed interface Route {
         override val path: String = "connection"
     }
 
-    data object Data : Route {
-        override val path: String = "data"
+    data object History : Route {
+        override val path: String = "history"
     }
 
     data object Chart : Route {

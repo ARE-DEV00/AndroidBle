@@ -1,14 +1,20 @@
 package kr.co.are.androidble.ui.connection
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kr.co.are.androidble.ui.component.QRCodeScanner
 import kr.co.are.androidble.ui.connection.model.ConnectionUiState
 
 @SuppressLint("MissingPermission")
@@ -17,27 +23,71 @@ fun ConnectionScreen(
     modifier: Modifier = Modifier,
     viewModel: ConnectionViewModel = viewModel()
 ) {
-    // Bluetooth 초기화 (필요한 경우)
+    val focusManager = LocalFocusManager.current
+
+    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val scrollState = rememberScrollState()
+
+    var isQRCodeScanned by viewModel.isQRCodeScanned
+    var uuidInput by viewModel.uuidInput
+
+
     LaunchedEffect(Unit) {
         viewModel.initBluetooth()
     }
 
-    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
-
     Box(
-        modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .pointerInput(Unit) {
+                // 터치 시 키보드 숨기기
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
+        contentAlignment = Alignment.Center // 콘텐츠를 가운데로 정렬
     ) {
         Column(
-            modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(16.dp, 16.dp, 16.dp, 100.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // UUID 입력 필드 추가
+            OutlinedTextField(
+                value = uuidInput,
+                onValueChange = { uuidInput = it },
+                label = { Text("UUID 입력") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+
+            if (isQRCodeScanned) {
+                Box(
+                    Modifier
+                        .width(300.dp)
+                        .height(300.dp)
+                ) {
+                    QRCodeScanner(onQRCodeScanned = { scannedCode ->
+                        uuidInput = scannedCode
+                    })
+                }
+                ActionButton(
+                    text = "QR 코드 스캔 종료",
+                    onClick = { isQRCodeScanned = false },
+                )
+            } else {
+                ActionButton(
+                    text = "QR 코드 스캔 시작",
+                    onClick = { isQRCodeScanned = true },
+                )
+            }
+
             // UI 상태에 따른 화면 표시
             when (homeUiState) {
                 is ConnectionUiState.BluetoothData -> {
-
+                    // BluetoothData 상태 처리
                 }
 
                 ConnectionUiState.ConnectionBluetooth -> {
@@ -54,7 +104,7 @@ fun ConnectionScreen(
                 ConnectionUiState.DisconnectionBluetooth -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan() }
+                        onClick = { viewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -73,7 +123,7 @@ fun ConnectionScreen(
                 ConnectionUiState.Ready -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan() }
+                        onClick = { viewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -98,17 +148,33 @@ fun ConnectionScreen(
                 ConnectionUiState.StopSearching -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan() }
+                        onClick = { viewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     MessageText(text = "검색이 중지되었습니다.")
                 }
+
+                is ConnectionUiState.ErrorSearching -> {
+                    ActionButton(
+                        text = "검색 시작",
+                        onClick = { viewModel.startScan(uuidInput) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    MessageText(
+                        text = "검색 오류: ${(homeUiState as ConnectionUiState.ErrorSearching).code}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
             }
         }
     }
 }
+
 
 @Composable
 fun ActionButton(
@@ -118,7 +184,6 @@ fun ActionButton(
     Button(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
         Text(text = text)

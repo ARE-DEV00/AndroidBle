@@ -13,10 +13,10 @@ sealed class BottomNavItem(
         iconResId = R.drawable.ic_connection,
         screenRoute = Route.Connection.path
     )
-    object Data : BottomNavItem(
-        title = "데이터",
+    object History : BottomNavItem(
+        title = "히스토리",
         iconResId = R.drawable.ic_data_connection,
-        screenRoute = Route.Data.path
+        screenRoute = Route.History.path
     )
     object Chart : BottomNavItem(
         title = "차트",
