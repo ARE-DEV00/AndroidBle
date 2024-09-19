@@ -99,12 +99,14 @@ class BluetoothViewModel @Inject constructor(
                         }.onSuccess { glucoseInfoEntity ->
                             glucoseInfoEntity?.let {
                                 Timber.d("#### glucoseInfoEntity: $it")
-                                _bluetoothDataUiState.value =
-                                    BluetoothDataUiState.Success(glucoseInfoEntity)
-
                                 glucoseInfoEntity.createdTime = LocalDateTime.now()
                                     .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
                                 realTimeData.add(glucoseInfoEntity)
+
+                                _bluetoothDataUiState.value =
+                                    BluetoothDataUiState.Success(glucoseInfoEntity)
+
+
                             }
                         }.onFailure {
                             _bluetoothDataUiState.value =
