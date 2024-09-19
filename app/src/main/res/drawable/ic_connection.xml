@@ -1,0 +1,17 @@
+<!-- res/drawable/ic_chain_connection_centered.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#000000"
+      android:fillType="evenOdd"
+      android:pathData="
+        M10,15V17H6C3.239,17 1,14.761 1,12C1,9.239 3.239,7 6,7H10V9H6C4.343,9 3,10.343 3,12
+        C3,13.657 4.343,15 6,15H10Z
+        M14,9V7H18C20.761,7 23,9.239 23,12C23,14.761 20.761,17 18,17H14V15H18
+        C19.657,15 21,13.657 21,12C21,10.343 19.657,9 18,9H14Z
+        M17,11H7V13H17V11Z
+      "/>
+</vector>
