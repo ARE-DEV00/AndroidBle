@@ -1,33 +1,34 @@
 package kr.co.are.androidble.ui.connection
 
-import android.app.Application
 import android.bluetooth.le.ScanResult
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kr.co.are.androidble.ui.module.BluetoothModule
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kr.co.are.androidble.domain.usecase.AddGlucoseInfoUseCase
 import kr.co.are.androidble.ui.connection.model.ConnectionUiState
+import kr.co.are.androidble.ui.module.bluetooth.BluetoothUtil
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class ConnectionViewModel @Inject constructor(private val application: Application) :
-    AndroidViewModel(application) {
+class ConnectionViewModel @Inject constructor(
+    private val bluetoothModule: BluetoothUtil,
+    private val addGlucoseUseCase: AddGlucoseInfoUseCase
+) : ViewModel() {
     private val _homeUiState = MutableStateFlow<ConnectionUiState>(ConnectionUiState.Ready)
     val homeUiState = _homeUiState.asStateFlow()
 
     var isQRCodeScanned = mutableStateOf(false)
-    var qrCode = mutableStateOf<String?>(null)
-    var uuidInput = mutableStateOf("")
-
-    init {
-
-    }
+    var uuidInput = mutableStateOf("123abc12-1234-abcd-5678-1234abcd5678")
 
     fun initBluetooth() {
-        BluetoothModule.getInstance(application)
-            .setListener(object : BluetoothModule.BluetoothModuleListener {
+        bluetoothModule
+            .setListener(object : BluetoothUtil.BluetoothModuleListener {
                 override fun onScanStarted() {
                     _homeUiState.value = ConnectionUiState.StartSearching
                 }
@@ -53,6 +54,13 @@ class ConnectionViewModel @Inject constructor(private val application: Applicati
                 }
 
                 override fun onCharacteristicChanged(data: String) {
+                    viewModelScope.launch {
+                        addGlucoseUseCase(data)
+                            .collectLatest {
+                                Timber.d("#### addGlucoseUseCase: $it")
+                            }
+                    }
+
                 }
 
             })
@@ -61,19 +69,19 @@ class ConnectionViewModel @Inject constructor(private val application: Applicati
     // BLE 스캔 시작
     fun startScan(serviceUuid: String) {
         if (serviceUuid.isNotEmpty()) {
-            BluetoothModule.getInstance(application).setServiceUUID(serviceUuid)
-            BluetoothModule.getInstance(application).startScan()
+            bluetoothModule.setServiceUUID(serviceUuid)
+            bluetoothModule.startScan()
         }
     }
 
     // BLE 스캔 중지
     fun stopScan() {
-        BluetoothModule.getInstance(application).stopScan()
+        bluetoothModule.stopScan()
     }
 
     // BLE 연결 해제
     fun disconnect() {
-        BluetoothModule.getInstance(application).disconnect()
+        bluetoothModule.disconnect()
     }
 
 

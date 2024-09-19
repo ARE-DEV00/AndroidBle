@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kr.co.are.androidble.ui.component.QRCodeScanner
@@ -21,7 +22,7 @@ import kr.co.are.androidble.ui.connection.model.ConnectionUiState
 @Composable
 fun ConnectionScreen(
     modifier: Modifier = Modifier,
-    viewModel: ConnectionViewModel = viewModel()
+    viewModel: ConnectionViewModel = hiltViewModel(),
 ) {
     val focusManager = LocalFocusManager.current
 

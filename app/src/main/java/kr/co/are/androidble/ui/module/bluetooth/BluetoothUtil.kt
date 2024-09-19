@@ -1,24 +1,34 @@
-package kr.co.are.androidble.ui.module
+package kr.co.are.androidble.ui.module.bluetooth
 
 import android.annotation.SuppressLint
 import android.app.Activity.BLUETOOTH_SERVICE
 import android.app.Application
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.os.ParcelUuid
-import android.util.Log
 import timber.log.Timber
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BluetoothModule private constructor(private val application: Application) {
+@Singleton
+class BluetoothUtil @Inject constructor(
+    private val application: Application
+) {
 
-    private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var bleScanner: BluetoothLeScanner
+    private var bluetoothAdapter: BluetoothAdapter
+    private var bleScanner: BluetoothLeScanner
     private var bluetoothGatt: BluetoothGatt? = null
 
-    //private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
     private val CHARACTERISTIC_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
     private var userServiceUUID: String? = null
     private var listener: BluetoothModuleListener? = null
@@ -27,18 +37,6 @@ class BluetoothModule private constructor(private val application: Application) 
         val bluetoothManager = application.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
         bleScanner = bluetoothAdapter.bluetoothLeScanner
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: BluetoothModule? = null
-
-        // 싱글톤 인스턴스를 가져오는 메서드
-        fun getInstance(application: Application): BluetoothModule {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BluetoothModule(application).also { INSTANCE = it }
-            }
-        }
     }
 
     // ScanCallback 객체
@@ -99,23 +97,23 @@ class BluetoothModule private constructor(private val application: Application) 
         bluetoothGatt = device.connectGatt(application, false, object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.d("BLE", "Connected to GATT server")
+                    Timber.e("Connected to GATT server")
                     gatt.requestMtu(512)
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.d("BLE", "Disconnected from GATT server")
+                    Timber.e("Disconnected from GATT server")
                     listener?.onDisconnectionGattServer()
                 }
             }
 
             override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.d("BLE", "MTU changed to $mtu")
+                    Timber.e("MTU changed to $mtu")
                     gatt.discoverServices()
                 }
             }
 
             @SuppressLint("MissingPermission")
-            override fun onServicesDiscovered(gatt: BluetoothGatt,status: Int) {
+            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     listener?.onConnectionGattServer()
                     val service = gatt.getService(UUID.fromString(userServiceUUID))
@@ -126,11 +124,14 @@ class BluetoothModule private constructor(private val application: Application) 
                 }
             }
 
-            override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-                when(characteristic.uuid){
-                    CHARACTERISTIC_UUID->{
+            override fun onCharacteristicChanged(
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic
+            ) {
+                when (characteristic.uuid) {
+                    CHARACTERISTIC_UUID -> {
                         val data = String(characteristic.value, Charsets.UTF_8)
-                        Log.d("BLE", data)
+                        Timber.e(data)
                         listener?.onCharacteristicChanged(data)
                     }
                 }
@@ -140,9 +141,13 @@ class BluetoothModule private constructor(private val application: Application) 
 
     // 알림 활성화
     @SuppressLint("MissingPermission")
-    private fun enableNotification(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+    private fun enableNotification(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
+    ) {
         gatt.setCharacteristicNotification(characteristic, true)
-        val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+        val descriptor =
+            characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
         descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         gatt.writeDescriptor(descriptor)
     }
@@ -160,6 +165,7 @@ class BluetoothModule private constructor(private val application: Application) 
             it.device != null && it.services.isNotEmpty()
         } ?: false
     }
+
     @SuppressLint("MissingPermission")
     fun disconnect() {
         bluetoothGatt?.disconnect()
@@ -174,6 +180,6 @@ class BluetoothModule private constructor(private val application: Application) 
         fun onScanStopped()
         fun onConnectionGattServer()
         fun onDisconnectionGattServer()
-        fun onCharacteristicChanged(data:String)
+        fun onCharacteristicChanged(data: String)
     }
 }
