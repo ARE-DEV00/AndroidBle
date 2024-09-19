@@ -20,8 +20,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 fun BottomNavBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem.Connection,
-        BottomNavItem.History,
         BottomNavItem.Chart,
+        BottomNavItem.History,
     )
     Surface(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),

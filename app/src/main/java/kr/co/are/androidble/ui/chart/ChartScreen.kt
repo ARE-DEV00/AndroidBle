@@ -1,12 +1,16 @@
 package kr.co.are.androidble.ui.chart
 
 import GlucoseLevelCard
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.are.androidble.ui.bluetooth.BluetoothViewModel
@@ -25,8 +29,10 @@ fun ChartScreen(
     val bluetoothUiState by bluetoothViewModel.bluetoothUiState.collectAsStateWithLifecycle()
 
 
-    Column(modifier.fillMaxSize()) {
-
+    Column(
+        modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
         if (bluetoothUiState is BluetoothUiState.ConnectionBluetooth) {
             when (bluetoothDataUiState) {
                 is BluetoothDataUiState.Error -> {
@@ -49,7 +55,13 @@ fun ChartScreen(
                 }
             }
         } else {
-            BluetoothConnectionRequiredCard()
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BluetoothConnectionRequiredCard()
+            }
         }
 
     }

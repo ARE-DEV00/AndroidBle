@@ -60,6 +60,7 @@ fun GlucoseLevelCard(
             // 원형 프로그레스바 및 총합 점수
             CircularScoreIndicator(
                 score = glucoseLevel,
+                unit = unit,
                 maxScore = 200
             )
         }
@@ -67,7 +68,7 @@ fun GlucoseLevelCard(
 }
 
 @Composable
-fun CircularScoreIndicator(score: Int, maxScore: Int) {
+fun CircularScoreIndicator(score: Int, unit: String, maxScore: Int) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(100.dp)
@@ -79,12 +80,20 @@ fun CircularScoreIndicator(score: Int, maxScore: Int) {
             strokeWidth = 8.dp,
             trackColor = ProgressIndicatorDefaults.circularIndeterminateTrackColor,
         )
-        Text(
-            text = "$score",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary // 점수 텍스트 색상 설정
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "$score",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary // 점수 텍스트 색상 설정
+            )
+            Text(
+                text = unit,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
     }
 }
 

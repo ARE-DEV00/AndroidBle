@@ -17,9 +17,10 @@ data class TableGlucoseInfoEntity(
     val glucoseLevel: Int,
     val unit: String,
     val time: String,
+    val rawData: String?,
 
-    var createdTime: LocalDateTime = LocalDateTime.now(ZoneId.from(ZoneOffset.UTC)), //생성시간
-    var modifiedTime: LocalDateTime = LocalDateTime.now(ZoneId.from(ZoneOffset.UTC))  //수정시간
+    var createdTime: LocalDateTime = LocalDateTime.now(ZoneId.from(ZoneOffset.UTC)),
+    var modifiedTime: LocalDateTime = LocalDateTime.now(ZoneId.from(ZoneOffset.UTC))
 
 )
 

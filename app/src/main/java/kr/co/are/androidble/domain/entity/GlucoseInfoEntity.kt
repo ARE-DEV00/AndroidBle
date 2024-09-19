@@ -13,6 +13,8 @@ data class GlucoseInfoEntity(
     val unit: String,
     val time: String,
 
+    var rawData: String? = null,
+
     var createdTime:String? = null,
     var modifiedTime:String? = null
 )

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun BluetoothConnectionRequiredCard() {
+fun BluetoothConnectedCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -36,17 +36,12 @@ fun BluetoothConnectionRequiredCard() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Bluetooth 기기와 연결이 필요합니다",
+                text = "Bluetooth가 연결되었습니다.",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer // 카드 내 텍스트 색상
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "데이터를 보기 위해 Bluetooth 기기와 연결해주세요.",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+
         }
     }
 }

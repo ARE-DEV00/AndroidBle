@@ -30,6 +30,7 @@ class AddGlucoseInfoUseCase @Inject constructor(
             }.onSuccess { glucoseInfoEntity ->
                 glucoseInfoEntity?.let {
                     // 앱 리포지토리에 데이터를 추가하고 그 결과를 순차적으로 처리
+                    glucoseInfoEntity.rawData = jsonData
                     appRepository.addGlucoseInfo(glucoseInfoEntity)
                         .catch { exception ->
                             // 에러를 방출

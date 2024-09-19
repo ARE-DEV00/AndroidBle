@@ -164,6 +164,14 @@ fun GlucoseDataItem(glucoseInfo: GlucoseInfoEntity) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }*/
+
+            if (formattedCreatedTime != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = glucoseInfo.rawData?:"",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

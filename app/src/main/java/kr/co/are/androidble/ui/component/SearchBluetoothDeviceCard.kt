@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun BluetoothConnectionRequiredCard() {
+fun SearchBluetoothDeviceCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -35,18 +36,16 @@ fun BluetoothConnectionRequiredCard() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            CircularProgressIndicator()
+
             Text(
-                text = "Bluetooth 기기와 연결이 필요합니다",
+                text = "Bluetooth 기기 검색 중",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer // 카드 내 텍스트 색상
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "데이터를 보기 위해 Bluetooth 기기와 연결해주세요.",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+
         }
     }
 }
