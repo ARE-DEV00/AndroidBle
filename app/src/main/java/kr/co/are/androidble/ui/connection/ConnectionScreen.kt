@@ -2,30 +2,46 @@ package kr.co.are.androidble.ui.connection
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import kr.co.are.androidble.ui.bluetooth.BluetoothViewModel
+import kr.co.are.androidble.ui.bluetooth.model.BluetoothUiState
 import kr.co.are.androidble.ui.component.QRCodeScanner
-import kr.co.are.androidble.ui.connection.model.ConnectionUiState
 
 @SuppressLint("MissingPermission")
 @Composable
 fun ConnectionScreen(
     modifier: Modifier = Modifier,
-    viewModel: ConnectionViewModel = viewModel()
+    viewModel: ConnectionViewModel = hiltViewModel(),
+    bluetoothViewModel: BluetoothViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
 
-    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val bluetoothUiState by bluetoothViewModel.bluetoothUiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     var isQRCodeScanned by viewModel.isQRCodeScanned
@@ -33,7 +49,7 @@ fun ConnectionScreen(
 
 
     LaunchedEffect(Unit) {
-        viewModel.initBluetooth()
+        bluetoothViewModel.initBluetooth()
     }
 
     Box(
@@ -85,15 +101,11 @@ fun ConnectionScreen(
             }
 
             // UI 상태에 따른 화면 표시
-            when (homeUiState) {
-                is ConnectionUiState.BluetoothData -> {
-                    // BluetoothData 상태 처리
-                }
-
-                ConnectionUiState.ConnectionBluetooth -> {
+            when (bluetoothUiState) {
+                BluetoothUiState.ConnectionBluetooth -> {
                     ActionButton(
                         text = "연결 해제",
-                        onClick = { viewModel.disconnect() }
+                        onClick = { bluetoothViewModel.disconnect() }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -101,10 +113,10 @@ fun ConnectionScreen(
                     MessageText(text = "블루투스 장치에 연결되었습니다.")
                 }
 
-                ConnectionUiState.DisconnectionBluetooth -> {
+                BluetoothUiState.DisconnectionBluetooth -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan(uuidInput) }
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -112,18 +124,18 @@ fun ConnectionScreen(
                     MessageText(text = "블루투스 장치에서 연결 해제되었습니다.")
                 }
 
-                is ConnectionUiState.Error -> {
-                    val isNetwork = (homeUiState as ConnectionUiState.Error).isNetwork
+                is BluetoothUiState.Error -> {
+                    val isNetwork = (bluetoothUiState as BluetoothUiState.Error).isNetwork
                     MessageText(
                         text = "오류 발생: $isNetwork",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
 
-                ConnectionUiState.Ready -> {
+                BluetoothUiState.Ready -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan(uuidInput) }
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -131,10 +143,11 @@ fun ConnectionScreen(
                     MessageText(text = "블루투스 연결 준비 완료")
                 }
 
-                ConnectionUiState.StartSearching -> {
+                is BluetoothUiState.BluetoothData,
+                BluetoothUiState.StartSearching -> {
                     ActionButton(
                         text = "검색 중지",
-                        onClick = { viewModel.stopScan() }
+                        onClick = { bluetoothViewModel.stopScan() }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -145,10 +158,10 @@ fun ConnectionScreen(
                     MessageText(text = "장치를 검색 중입니다...")
                 }
 
-                ConnectionUiState.StopSearching -> {
+                BluetoothUiState.StopSearching -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan(uuidInput) }
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -156,16 +169,16 @@ fun ConnectionScreen(
                     MessageText(text = "검색이 중지되었습니다.")
                 }
 
-                is ConnectionUiState.ErrorSearching -> {
+                is BluetoothUiState.ErrorSearching -> {
                     ActionButton(
                         text = "검색 시작",
-                        onClick = { viewModel.startScan(uuidInput) }
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     MessageText(
-                        text = "검색 오류: ${(homeUiState as ConnectionUiState.ErrorSearching).code}",
+                        text = "검색 오류: ${(bluetoothUiState as BluetoothUiState.ErrorSearching).code}",
                         color = MaterialTheme.colorScheme.error
                     )
                 }

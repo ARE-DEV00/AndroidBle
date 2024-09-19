@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -39,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -79,6 +83,27 @@ dependencies {
 
     implementation(libs.zxing.core)
     implementation(libs.zxing.android.embedded)
+
+    //Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
+
+    //Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.paging)
+    ksp(libs.room.compiler)
+
+    //Preferences
+    implementation(libs.datastore.preferences)
+    implementation(libs.datastore.preferences.core)
+
+    //Moshi
+    implementation(libs.moshi.kotlin)
+
+    //accompanist-swiperefresh
+    implementation(libs.accompanist.swiperefresh)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
