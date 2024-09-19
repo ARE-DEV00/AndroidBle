@@ -55,7 +55,7 @@ class BluetoothUtil @Inject constructor(
             if (userServiceUUID?.isNotEmpty() == true) {
                 runCatching {
                     if (serviceUuids?.contains(ParcelUuid(UUID.fromString(userServiceUUID))) == true) {
-                        stopScan()
+                        stopScan(isListener = false)
                         connectToDevice(device)
                     }
                 }.onFailure {
@@ -86,9 +86,12 @@ class BluetoothUtil @Inject constructor(
 
     // BLE 스캔 중지
     @SuppressLint("MissingPermission")
-    fun stopScan() {
+    fun stopScan(isListener: Boolean = true) {
         bleScanner.stopScan(scanCallback)
-        listener?.onScanStopped()
+        if(isListener){
+            listener?.onScanStopped()
+        }
+
     }
 
     // BLE 장치에 연결

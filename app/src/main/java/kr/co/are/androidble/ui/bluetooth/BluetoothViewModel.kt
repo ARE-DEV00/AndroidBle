@@ -24,6 +24,8 @@ import kr.co.are.androidble.ui.bluetooth.model.BluetoothDataUiState
 import kr.co.are.androidble.ui.bluetooth.model.BluetoothUiState
 import kr.co.are.androidble.ui.module.bluetooth.BluetoothUtil
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,14 +35,19 @@ class BluetoothViewModel @Inject constructor(
     private val getGlucoseInfoListUseCase: GetGlucoseInfoListUseCase,
     private val deleteAllGlucoseInfoUseCase: DeleteAllGlucoseInfoUseCase,
 ) : ViewModel() {
-    private val _bluetoothDataDbUiState = MutableStateFlow<BluetoothDataDbUiState>(BluetoothDataDbUiState.Loading)
-    val bluetoothDataDbUiState: StateFlow<BluetoothDataDbUiState> = _bluetoothDataDbUiState.asStateFlow()
+    private val _bluetoothDataDbUiState =
+        MutableStateFlow<BluetoothDataDbUiState>(BluetoothDataDbUiState.Loading)
+    val bluetoothDataDbUiState: StateFlow<BluetoothDataDbUiState> =
+        _bluetoothDataDbUiState.asStateFlow()
 
     private val _bluetoothUiState = MutableStateFlow<BluetoothUiState>(BluetoothUiState.Ready)
     val bluetoothUiState: StateFlow<BluetoothUiState> = _bluetoothUiState.asStateFlow()
 
-    private val _bluetoothDataUiState = MutableStateFlow<BluetoothDataUiState>(BluetoothDataUiState.Loading)
+    private val _bluetoothDataUiState =
+        MutableStateFlow<BluetoothDataUiState>(BluetoothDataUiState.Loading)
     val bluetoothDataUiState: StateFlow<BluetoothDataUiState> = _bluetoothDataUiState.asStateFlow()
+
+    val realTimeData = MutableList<GlucoseInfoEntity?>(0) { null }
 
 
     fun initBluetooth() {
@@ -52,7 +59,8 @@ class BluetoothViewModel @Inject constructor(
 
                 @SuppressLint("MissingPermission")
                 override fun onScanResult(scanResult: ScanResult) {
-                    _bluetoothUiState.value = BluetoothUiState.BluetoothData(scanResult.device.name ?: "Unknown")
+                    _bluetoothUiState.value =
+                        BluetoothUiState.BluetoothData(scanResult.device.name ?: "Unknown")
 
                 }
 
@@ -90,10 +98,19 @@ class BluetoothViewModel @Inject constructor(
                             adapter.fromJson(data)
                         }.onSuccess { glucoseInfoEntity ->
                             glucoseInfoEntity?.let {
-                                _bluetoothDataUiState.value = BluetoothDataUiState.Success(glucoseInfoEntity)
+                                Timber.d("#### glucoseInfoEntity: $it")
+                                glucoseInfoEntity.createdTime = LocalDateTime.now()
+                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                                realTimeData.add(glucoseInfoEntity)
+
+                                _bluetoothDataUiState.value =
+                                    BluetoothDataUiState.Success(glucoseInfoEntity)
+
+
                             }
                         }.onFailure {
-                            _bluetoothDataUiState.value = BluetoothDataUiState.Error(it.message ?: "Unknown Error")
+                            _bluetoothDataUiState.value =
+                                BluetoothDataUiState.Error(it.message ?: "Unknown Error")
                             Timber.e(it)
                         }
                     }
@@ -110,12 +127,15 @@ class BluetoothViewModel @Inject constructor(
                     _bluetoothDataDbUiState.value = BluetoothDataDbUiState.Loading
                 }
                 .catch { exception ->
-                    _bluetoothDataDbUiState.value = BluetoothDataDbUiState.Error(exception.message ?: "Unknown Error")
+                    _bluetoothDataDbUiState.value =
+                        BluetoothDataDbUiState.Error(exception.message ?: "Unknown Error")
                 }
                 .collect { resultData ->
                     when (resultData) {
                         is ResultDomain.Error -> {
-                            _bluetoothDataDbUiState.value = BluetoothDataDbUiState.Error(resultData.exception.message ?: "Unknown Error")
+                            _bluetoothDataDbUiState.value = BluetoothDataDbUiState.Error(
+                                resultData.exception.message ?: "Unknown Error"
+                            )
                         }
 
                         ResultDomain.Loading -> {
@@ -123,13 +143,13 @@ class BluetoothViewModel @Inject constructor(
                         }
 
                         is ResultDomain.Success -> {
-                            _bluetoothDataDbUiState.value = BluetoothDataDbUiState.Success(resultData.data)
+                            _bluetoothDataDbUiState.value =
+                                BluetoothDataDbUiState.Success(resultData.data.toMutableList())
                         }
                     }
                 }
         }
     }
-
 
 
     // BLE 스캔 시작
@@ -158,7 +178,7 @@ class BluetoothViewModel @Inject constructor(
     fun deleteAllData() {
         viewModelScope.launch {
             deleteAllGlucoseInfoUseCase()
-                .collect{
+                .collect {
                     refreshData()
                 }
         }

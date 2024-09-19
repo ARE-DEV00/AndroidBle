@@ -34,7 +34,6 @@ import kr.co.are.androidble.domain.entity.GlucoseInfoEntity
 import kr.co.are.androidble.ui.bluetooth.BluetoothViewModel
 import kr.co.are.androidble.ui.bluetooth.model.BluetoothDataDbUiState
 import kr.co.are.androidble.ui.component.AppHeaderScreen
-import kr.co.are.androidble.ui.history.model.HistoryUiState
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -164,6 +163,14 @@ fun GlucoseDataItem(glucoseInfo: GlucoseInfoEntity) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }*/
+
+            if (formattedCreatedTime != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = glucoseInfo.rawData?:"",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

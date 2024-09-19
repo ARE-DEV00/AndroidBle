@@ -30,7 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.are.androidble.ui.bluetooth.BluetoothViewModel
 import kr.co.are.androidble.ui.bluetooth.model.BluetoothUiState
+import kr.co.are.androidble.ui.component.BluetoothConnectedCard
+import kr.co.are.androidble.ui.component.BluetoothConnectionRequiredCard
 import kr.co.are.androidble.ui.component.QRCodeScanner
+import kr.co.are.androidble.ui.component.SearchBluetoothDeviceCard
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -69,59 +72,39 @@ fun ConnectionScreen(
                 .padding(16.dp, 16.dp, 16.dp, 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // UUID 입력 필드 추가
-            OutlinedTextField(
-                value = uuidInput,
-                onValueChange = { uuidInput = it },
-                label = { Text("UUID 입력") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
 
-            if (isQRCodeScanned) {
-                Box(
-                    Modifier
-                        .width(300.dp)
-                        .height(300.dp)
-                ) {
-                    QRCodeScanner(onQRCodeScanned = { scannedCode ->
-                        uuidInput = scannedCode
-                    })
-                }
-                ActionButton(
-                    text = "QR 코드 스캔 종료",
-                    onClick = { isQRCodeScanned = false },
-                )
-            } else {
-                ActionButton(
-                    text = "QR 코드 스캔 시작",
-                    onClick = { isQRCodeScanned = true },
-                )
-            }
 
             // UI 상태에 따른 화면 표시
             when (bluetoothUiState) {
                 BluetoothUiState.ConnectionBluetooth -> {
+                    BluetoothConnectedCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     ActionButton(
                         text = "연결 해제",
                         onClick = { bluetoothViewModel.disconnect() }
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    MessageText(text = "블루투스 장치에 연결되었습니다.")
                 }
 
                 BluetoothUiState.DisconnectionBluetooth -> {
-                    ActionButton(
-                        text = "검색 시작",
-                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+                    BluetoothConnectionRequiredCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    UUIDInputField(
+                        uuidInput = uuidInput,
+                        onUUIDInputChanged = { uuidInput = it },
+                        onIsQRCodeScannedChanged = { isQRCodeScanned = it },
+                        isQRCodeScanned = isQRCodeScanned
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    MessageText(text = "블루투스 장치에서 연결 해제되었습니다.")
+                    ActionButton(
+                        text = "검색 시작",
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+                    )
                 }
 
                 is BluetoothUiState.Error -> {
@@ -133,43 +116,74 @@ fun ConnectionScreen(
                 }
 
                 BluetoothUiState.Ready -> {
-                    ActionButton(
-                        text = "검색 시작",
-                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+                    BluetoothConnectionRequiredCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    UUIDInputField(
+                        uuidInput = uuidInput,
+                        onUUIDInputChanged = { uuidInput = it },
+                        onIsQRCodeScannedChanged = { isQRCodeScanned = it },
+                        isQRCodeScanned = isQRCodeScanned
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    MessageText(text = "블루투스 연결 준비 완료")
+                    ActionButton(
+                        text = "검색 시작",
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+                    )
                 }
 
                 is BluetoothUiState.BluetoothData,
                 BluetoothUiState.StartSearching -> {
+
+                    SearchBluetoothDeviceCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     ActionButton(
                         text = "검색 중지",
                         onClick = { bluetoothViewModel.stopScan() }
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    MessageText(text = "장치를 검색 중입니다...")
                 }
 
                 BluetoothUiState.StopSearching -> {
-                    ActionButton(
-                        text = "검색 시작",
-                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+
+                    BluetoothConnectionRequiredCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    UUIDInputField(
+                        uuidInput = uuidInput,
+                        onUUIDInputChanged = { uuidInput = it },
+                        onIsQRCodeScannedChanged = { isQRCodeScanned = it },
+                        isQRCodeScanned = isQRCodeScanned
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    MessageText(text = "검색이 중지되었습니다.")
+                    ActionButton(
+                        text = "검색 시작",
+                        onClick = { bluetoothViewModel.startScan(uuidInput) }
+                    )
                 }
 
                 is BluetoothUiState.ErrorSearching -> {
+
+                    BluetoothConnectionRequiredCard()
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    UUIDInputField(
+                        uuidInput = uuidInput,
+                        onUUIDInputChanged = { uuidInput = it },
+                        onIsQRCodeScannedChanged = { isQRCodeScanned = it },
+                        isQRCodeScanned = isQRCodeScanned
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     ActionButton(
                         text = "검색 시작",
                         onClick = { bluetoothViewModel.startScan(uuidInput) }
@@ -187,6 +201,46 @@ fun ConnectionScreen(
         }
     }
 }
+
+@Composable
+fun UUIDInputField(
+    uuidInput: String,
+    onUUIDInputChanged: (String) -> Unit,
+    onIsQRCodeScannedChanged: (Boolean) -> Unit,
+    isQRCodeScanned: Boolean,
+) {
+    // UUID 입력 필드 추가
+    OutlinedTextField(
+        value = uuidInput,
+        onValueChange = { onUUIDInputChanged(it) },
+        label = { Text("UUID 입력") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    )
+
+    if (isQRCodeScanned) {
+        Box(
+            Modifier
+                .width(300.dp)
+                .height(300.dp)
+        ) {
+            QRCodeScanner(onQRCodeScanned = { scannedCode ->
+                onUUIDInputChanged(scannedCode)
+            })
+        }
+        ActionButton(
+            text = "QR 코드 스캔 종료",
+            onClick = { onIsQRCodeScannedChanged(false) },
+        )
+    } else {
+        ActionButton(
+            text = "QR 코드 스캔 시작",
+            onClick = { onIsQRCodeScannedChanged(true) },
+        )
+    }
+}
+
 
 
 @Composable

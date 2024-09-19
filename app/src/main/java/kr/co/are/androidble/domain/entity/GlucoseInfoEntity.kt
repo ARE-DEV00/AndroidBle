@@ -5,6 +5,8 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class GlucoseInfoEntity(
+    val key: Long? = null,
+
     val type: String,
     @Json(name = "service_uuid")
     val serviceUuid: String,
@@ -13,6 +15,8 @@ data class GlucoseInfoEntity(
     val unit: String,
     val time: String,
 
-    var createdTime:String? = null,
-    var modifiedTime:String? = null
+    var rawData: String? = null,
+
+    var createdTime: String? = null,
+    var modifiedTime: String? = null
 )

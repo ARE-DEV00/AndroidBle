@@ -19,11 +19,13 @@ class AppDatabaseRepositoryImpl @Inject constructor(
                 val glucoseInfoList = appDatabase.glucoseInfoDao().selectAllGlucoseInfo()
                 emit(ResultDomain.Success(glucoseInfoList.map {
                     GlucoseInfoEntity(
+                        key = it.key,
                         type = it.type,
                         serviceUuid = it.serviceUuid,
                         glucoseLevel = it.glucoseLevel,
                         unit = it.unit,
                         time = it.time,
+                        rawData = it.rawData,
                         createdTime = it.createdTime.toString(),
                         modifiedTime = it.modifiedTime.toString(),
                     )
@@ -45,6 +47,7 @@ class AppDatabaseRepositoryImpl @Inject constructor(
                         glucoseLevel = glucoseInfoEntity.glucoseLevel,
                         unit = glucoseInfoEntity.unit,
                         time = glucoseInfoEntity.time,
+                        rawData = glucoseInfoEntity.rawData,
                     )
                 )
                 emit(ResultDomain.Success(true))
