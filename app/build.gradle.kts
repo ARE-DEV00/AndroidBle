@@ -7,6 +7,16 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val versionMajor = 1 // 0~9
+val versionMinor = 0 // 0~99
+val versionPatch = 0 // 0~99
+val versionHotfix = 0 // 0~99
+
+val versionCodeFinal =
+    versionMajor * 10_000_000 + versionMinor * 100_000 + versionPatch * 1000 + versionHotfix
+val versionNameFinal = "$versionMajor.$versionMinor.$versionPatch"
+
+
 android {
     namespace = "kr.co.are.androidble"
     compileSdk = 34
@@ -15,8 +25,8 @@ android {
         applicationId = "kr.co.are.androidble"
         minSdk = 31
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = versionCodeFinal
+        versionName = versionNameFinal
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
