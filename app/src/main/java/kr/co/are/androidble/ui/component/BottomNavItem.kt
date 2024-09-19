@@ -8,18 +8,18 @@ sealed class BottomNavItem(
 
     val title: String, @DrawableRes val iconResId: Int, val screenRoute: String
 ) {
-    object Connection : BottomNavItem(
-        title = "연결",
+    data object Connection : BottomNavItem(
+        title = "Connection",
         iconResId = R.drawable.ic_connection,
         screenRoute = Route.Connection.path
     )
-    object History : BottomNavItem(
-        title = "히스토리",
+    data object History : BottomNavItem(
+        title = "History",
         iconResId = R.drawable.ic_data_connection,
         screenRoute = Route.History.path
     )
-    object Chart : BottomNavItem(
-        title = "차트",
+    data object Chart : BottomNavItem(
+        title = "Chart",
         iconResId = R.drawable.ic_chart_connection,
         screenRoute = Route.Chart.path
     )

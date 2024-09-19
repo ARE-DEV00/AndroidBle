@@ -11,12 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kr.co.are.androidble.domain.entity.GlucoseInfoEntity
+import kr.co.are.androidble.ui.bluetooth.BluetoothViewModel
+import kr.co.are.androidble.ui.bluetooth.model.BluetoothDataDbUiState
 import kr.co.are.androidble.ui.component.AppHeaderScreen
 import kr.co.are.androidble.ui.history.model.HistoryUiState
 import java.time.LocalDateTime
@@ -37,27 +43,40 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
-    viewModel: HistoryViewModel = hiltViewModel()
+    viewModel: HistoryViewModel = hiltViewModel(),
+    bluetoothViewModel: BluetoothViewModel = hiltViewModel()
 ) {
-    val historyUiState by viewModel.historyUiState.collectAsStateWithLifecycle()
+    val bluetoothDataDbUiState by bluetoothViewModel.bluetoothDataDbUiState.collectAsStateWithLifecycle()
 
     val swipeRefreshState = rememberSwipeRefreshState(
-        isRefreshing = historyUiState is HistoryUiState.Loading
+        isRefreshing = bluetoothDataDbUiState is BluetoothDataDbUiState.Loading
     )
+
+    LaunchedEffect(UInt) {
+        bluetoothViewModel.refreshData()
+    }
 
     AppHeaderScreen(
         headerTitle = "History",
-        modifier = modifier
+        leftIconImageVector = Icons.Default.Refresh,
+        onTabLeftIcon = {
+            bluetoothViewModel.refreshData()
+        },
+        rightIconImageVector = Icons.Default.Delete,
+        onTabRightIcon = {
+            bluetoothViewModel.deleteAllData()
+        },
+        modifier = modifier.padding(bottom = 70.dp)
     ) {
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = { viewModel.refreshData() },
+            onRefresh = { bluetoothViewModel.refreshData() },
             modifier = modifier.fillMaxSize()
         ) {
             Box(modifier.fillMaxSize()) {
-                when (historyUiState) {
-                    is HistoryUiState.Success -> {
-                        val glucoseDataList = (historyUiState as HistoryUiState.Success).glucoseDataList
+                when (bluetoothDataDbUiState) {
+                    is BluetoothDataDbUiState.Success -> {
+                        val glucoseDataList = (bluetoothDataDbUiState as BluetoothDataDbUiState.Success).glucoseDataList
                         if (glucoseDataList.isEmpty()) {
                             // 데이터가 없을 때 메시지 표시
                             EmptyDataMessage()
@@ -67,13 +86,13 @@ fun HistoryScreen(
                         }
                     }
 
-                    is HistoryUiState.Loading -> {
+                    is BluetoothDataDbUiState.Loading -> {
                         // 로딩 인디케이터 표시
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
 
-                    is HistoryUiState.Error -> {
-                        val errorMessage = (historyUiState as HistoryUiState.Error).message
+                    is BluetoothDataDbUiState.Error -> {
+                        val errorMessage = (bluetoothDataDbUiState as BluetoothDataDbUiState.Error).message
                         // 에러 메시지 표시
                         ErrorMessage(errorMessage = errorMessage)
                     }
@@ -134,17 +153,17 @@ fun GlucoseDataItem(glucoseInfo: GlucoseInfoEntity) {
             if (formattedCreatedTime != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "생성일: $formattedCreatedTime",
+                    text = "시간: $formattedCreatedTime",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            if (formattedModifiedTime != null) {
+            /*if (formattedModifiedTime != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "수정일: $formattedModifiedTime",
                     style = MaterialTheme.typography.bodySmall
                 )
-            }
+            }*/
         }
     }
 }
