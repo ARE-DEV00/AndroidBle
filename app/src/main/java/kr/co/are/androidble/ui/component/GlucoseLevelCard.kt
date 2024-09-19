@@ -33,8 +33,7 @@ fun GlucoseLevelCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer), // 테마의 primaryContainer 색상 사용
         shape = RoundedCornerShape(16.dp), // 카드의 모서리를 둥글게 처리합니다.
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // 카드에 약간의 그림자 효과를 줍니다.

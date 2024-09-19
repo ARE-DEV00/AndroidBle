@@ -24,6 +24,8 @@ import kr.co.are.androidble.ui.bluetooth.model.BluetoothDataUiState
 import kr.co.are.androidble.ui.bluetooth.model.BluetoothUiState
 import kr.co.are.androidble.ui.module.bluetooth.BluetoothUtil
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +46,9 @@ class BluetoothViewModel @Inject constructor(
     private val _bluetoothDataUiState =
         MutableStateFlow<BluetoothDataUiState>(BluetoothDataUiState.Loading)
     val bluetoothDataUiState: StateFlow<BluetoothDataUiState> = _bluetoothDataUiState.asStateFlow()
+
+    val realTimeData = MutableList<GlucoseInfoEntity?>(0) { null }
+
 
     fun initBluetooth() {
         bluetoothModule
@@ -96,6 +101,10 @@ class BluetoothViewModel @Inject constructor(
                                 Timber.d("#### glucoseInfoEntity: $it")
                                 _bluetoothDataUiState.value =
                                     BluetoothDataUiState.Success(glucoseInfoEntity)
+
+                                glucoseInfoEntity.createdTime = LocalDateTime.now()
+                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                                realTimeData.add(glucoseInfoEntity)
                             }
                         }.onFailure {
                             _bluetoothDataUiState.value =
@@ -133,7 +142,7 @@ class BluetoothViewModel @Inject constructor(
 
                         is ResultDomain.Success -> {
                             _bluetoothDataDbUiState.value =
-                                BluetoothDataDbUiState.Success(resultData.data)
+                                BluetoothDataDbUiState.Success(resultData.data.toMutableList())
                         }
                     }
                 }

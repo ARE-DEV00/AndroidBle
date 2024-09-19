@@ -19,6 +19,7 @@ class AppDatabaseRepositoryImpl @Inject constructor(
                 val glucoseInfoList = appDatabase.glucoseInfoDao().selectAllGlucoseInfo()
                 emit(ResultDomain.Success(glucoseInfoList.map {
                     GlucoseInfoEntity(
+                        key = it.key,
                         type = it.type,
                         serviceUuid = it.serviceUuid,
                         glucoseLevel = it.glucoseLevel,
