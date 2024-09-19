@@ -8,7 +8,7 @@ import kr.co.are.androidble.domain.entity.GlucoseInfoEntity
 sealed interface BluetoothDataUiState {
 
     @Immutable
-    data class Success(val glucoseInfo: GlucoseInfoEntity) : BluetoothDataUiState
+    data class Success(val data: GlucoseInfoEntity) : BluetoothDataUiState
 
     @Immutable
     data object Loading : BluetoothDataUiState
